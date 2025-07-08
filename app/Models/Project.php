@@ -11,7 +11,7 @@ class Project extends Model
     public static function booted()
     {
         static::creating(function($project){
-           $project->user_id = auth()->id();
+            $project->user_id = auth()->id();
         });
     }
 
@@ -19,4 +19,11 @@ class Project extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function milestones()
+    {
+        return $this->hasMany(Milestone::class);
+    }
+
+
 }

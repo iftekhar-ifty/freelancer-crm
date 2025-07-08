@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->decimal('amount', 10, 2);
+            $table->boolean('is_paid')->default(false);
+            $table->date('payment_date')->nullable();
             $table->date('due_date');
             $table->enum('status', ['pending', 'paid', 'overdue'])->default('pending');
             $table->timestamps();
