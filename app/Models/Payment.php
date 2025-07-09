@@ -11,4 +11,14 @@ class Payment extends Model
     {
         return $this->belongsTo(Project::class);
     }
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+    public function milestone()
+    {
+        return $this->belongsTo(Milestone::class);
+    }
+
+
 }

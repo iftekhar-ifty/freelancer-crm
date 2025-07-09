@@ -126,7 +126,7 @@ class MilestoneResource extends Resource
                     ]);
                 })
                 ->hidden(fn (Milestone $record) => $record->is_paid),
-                Tables\Actions\EditAction::make(),
+//                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -6,6 +6,11 @@ use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
 use App\Models\Project;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -28,14 +33,37 @@ class ProjectResource extends Resource
                         Forms\Components\TextInput::make('title')
                             ->live(onBlur: true)
                             ->afterStateUpdated(function (Forms\Set $set, ?string $state = null ) {
-                                    $set('slug', str()->slug($state));
+                                $set('slug', str()->slug($state));
                             })
                             ->required(),
                         Forms\Components\TextInput::make('slug')->required(),
                         Forms\Components\MarkdownEditor::make('description')->required(),
-                    ])
+                    ]),
+                    Section::make('Milestones')
+                        ->schema([
+                            Repeater::make('milestones')
+                                ->relationship()
+//                                ->visible(fn (Closure $get) => $get('payment_type') === 'milestone')
+                                ->schema([
+                                    TextInput::make('title')
+                                        ->required()
+                                        ->columnSpan(2),
+
+                                    TextInput::make('amount')
+                                        ->numeric()
+                                        ->prefix('$')
+                                        ->required(),
+
+                                    DatePicker::make('due_date')
+                                        ->required(),
+
+                                    Toggle::make('is_paid')
+                                        ->reactive()
+                                ])
+                                ->columns(2)
+                        ])
                 ])->columnSpan(2),
-                  Forms\Components\Group::make()->schema([
+                Forms\Components\Group::make()->schema([
                     Forms\Components\Section::make()->schema([
                         Forms\Components\Select::make('client_id')
                             ->relationship('client', 'name')
