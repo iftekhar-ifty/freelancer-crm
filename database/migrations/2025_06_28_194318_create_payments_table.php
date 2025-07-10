@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->decimal('tax', 10, 2)->nullable();
             $table->date('payment_date');
-            $table->enum('method', ['bank', 'paypal', 'card', 'cash', 'crypto','Bkash','Nagod']);
+            $table->enum('method', ['bank', 'paypal', 'card', 'cash', 'crypto','bkash','nagod', 'mfs']);
             $table->json('preload')->nullable();
             $table->string('reference')->nullable();
             $table->timestamps();

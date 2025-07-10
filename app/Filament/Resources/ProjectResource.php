@@ -69,8 +69,19 @@ class ProjectResource extends Resource
                             ->relationship('client', 'name')
                             ->searchable()
                             ->required(),
-                        Forms\Components\TextInput::make('total_price')->integer(),
-                        Forms\Components\TextInput::make('hourly_rate')->integer(),
+                        Forms\Components\Select::make('budget')
+                            ->label('Budget Type')
+                            ->dehydrated(false)
+                            ->options([
+                                'total' => 'total',
+                                'hourly' => 'hourly',
+                            ])->reactive(),
+                        Forms\Components\TextInput::make('total_price')
+                            ->visible(fn(Forms\Get $get) => $get('budget') == 'total')
+                            ->integer(),
+                        Forms\Components\TextInput::make('hourly_rate')
+                            ->visible(fn(Forms\Get $get) => $get('budget') == 'hourly')
+                            ->integer(),
                         Forms\Components\DatePicker::make('deadline')->required(),
                         Forms\Components\Select::make('status')
                             ->options([
@@ -97,11 +108,11 @@ class ProjectResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title'),
-                Tables\Columns\TextColumn::make('client.name'),
-                Tables\Columns\TextColumn::make('total_price'),
-                Tables\Columns\TextColumn::make('hourly_rate'),
-                Tables\Columns\TextColumn::make('deadline')->badge(),
+                Tables\Columns\TextColumn::make('title')->searchable(),
+                Tables\Columns\TextColumn::make('client.name')->searchable(),
+                Tables\Columns\TextColumn::make('total_price')->searchable(),
+                Tables\Columns\TextColumn::make('hourly_rate')->searchable(),
+                Tables\Columns\TextColumn::make('deadline')->badge()->searchable(),
             ])
             ->filters([
                 //

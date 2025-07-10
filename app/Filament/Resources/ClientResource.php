@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -26,12 +27,13 @@ class ClientResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make()->schema([
-                    Forms\Components\TextInput::make('name'),
-                    Forms\Components\TextInput::make('email'),
-                    Forms\Components\TextInput::make('phone'),
-                    Forms\Components\TextInput::make('company'),
+                    Forms\Components\TextInput::make('name')->required(),
+                    Forms\Components\TextInput::make('email')->required()->email(),
+                    Forms\Components\TextInput::make('phone')->required(),
+                    Forms\Components\TextInput::make('company')->required(),
                     Forms\Components\TextInput::make('details'),
                     Forms\Components\Select::make('from')
+                        ->required()
                         ->options([
                             'Fiver' => 'Fiver',
                             'Upwork' => 'Upwork',
@@ -47,11 +49,11 @@ class ClientResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('phone'),
-                Tables\Columns\TextColumn::make('company'),
-                Tables\Columns\TextColumn::make('details'),
-                Tables\Columns\TextColumn::make('from')
+                Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('phone')->searchable(),
+                Tables\Columns\TextColumn::make('company')->searchable(),
+                Tables\Columns\TextColumn::make('details')->searchable(),
+                Tables\Columns\TextColumn::make('from')->searchable()
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'Social Media' => 'gray',
@@ -62,7 +64,14 @@ class ClientResource extends Resource
 
             ])
             ->filters([
-                //
+                SelectFilter::make('from')
+                    ->label('From where')
+                    ->options([
+                        'Social Media' => 'Social Media',
+                        'Fiver' => 'Fiver',
+                        'Upwork' => 'Upwork',
+                        'Others' => 'Others',
+                    ])
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

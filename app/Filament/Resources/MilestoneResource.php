@@ -7,6 +7,7 @@ use App\Filament\Resources\MilestoneResource\RelationManagers;
 use App\Models\Milestone;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -27,7 +28,19 @@ class MilestoneResource extends Resource
 {
     protected static ?string $model = Milestone::class;
 
+
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('is_paid', false)->count();
+    }
+
+    public static function canCreate():bool
+    {
+        return false;
+    }
 
     public static function form(Form $form): Form
     {
@@ -105,28 +118,38 @@ class MilestoneResource extends Resource
                         ->where('is_paid', false)),
             ])
             ->actions([
-                 Action::make('mark_paid')
-                ->label('Mark Paid')
-                ->icon('heroicon-o-check-circle')
-                ->action(function (Milestone $record) {
-                    $record->update([
-                        'is_paid' => true,
-                        'payment_date' => now()
-                    ]);
+                Action::make('Mark as Paid')
+                    ->form([
+                        Forms\Components\Section::make()->schema([
+                            Select::make('method')
+                                ->label('Payment Methods')
+                                ->options([
+                                    'bank' => 'Bank Transfer',
+                                    'paypal' => 'PayPal',
+                                    'card' => 'Credit Card',
+                                    'cash' => 'Cash',
+                                    'mfs' => 'MFS',
+                                    'crypto' => 'Cryptocurrency'
+                                ])->required(),
+                            DatePicker::make('payment_date')->required()
+                        ])->columns(2)
+                    ])->size('md')
+                    ->action(function (array $data, Milestone $record): void {
+                        $record['is_paid'] = true;
+                        $record['payment_date'] = $data['payment_date'];
+                        $record->save();
 
-                    // Automatically create payment record
-                    Payment::create([
-                        'user_id' => auth()->id(),
-                        'client_id' => $record->project->client_id,
-                        'project_id' => $record->project_id,
-                        'milestone_id' => $record->id,
-                        'amount' => $record->amount,
-                        'payment_date' => now(),
-                        'method' => 'bank' // Default, can be changed
-                    ]);
-                })
-                ->hidden(fn (Milestone $record) => $record->is_paid),
-//                Tables\Actions\EditAction::make(),
+                        Payment::create([
+                            'user_id' => auth()->id(),
+                            'client_id' => $record->project->client_id,
+                            'project_id' => $record->project_id,
+                            'milestone_id' => $record->id,
+                            'amount' => $record->amount,
+                            'payment_date' => now(),
+                            'method' => $data['method'] // Default, can be changed
+                        ]);
+
+                    })->hidden(fn (Milestone $record) => $record->is_paid),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

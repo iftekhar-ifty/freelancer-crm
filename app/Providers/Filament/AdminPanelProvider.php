@@ -29,8 +29,6 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->profile(isSimple: false)
-            ->sidebarWidth('15rem')
-//            ->topNavigation()
             ->colors([
                 'primary' => Color::Indigo,
             ])

@@ -11,6 +11,7 @@ use App\Models\Project;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -32,51 +33,54 @@ class PaymentResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('client_id')
-                    ->label('Client')
-                    ->options(Client::where('user_id', auth()->id())->pluck('name', 'id'))
-                    ->required()
-                    ->reactive(),
+                Forms\Components\Section::make()->schema([
+                    Select::make('client_id')
+                        ->label('Client')
+                        ->options(Client::query()->where('user_id', auth()->id())->pluck('name', 'id'))
+                        ->required()
+                        ->reactive(),
 
-                Select::make('project_id')
-                    ->label('Project')
-                    ->options(function (callable $get) {
-                        return Project::where('client_id', $get('client_id'))
-                            ->pluck('title', 'id');
-                    })
-                    ->searchable()
-                    ->reactive(),
-                Select::make('milestone_id')
-                    ->label('Milestone (Optional)')
-                    ->options(function (callable $get) {
-                        return Milestone::where('project_id', $get('project_id'))
-                            ->where('is_paid', false)
-                            ->pluck('title', 'id');
-                    })
-                    ->searchable()
-                    ->hidden(fn (callable $get) => !$get('project_id')),
+                    Select::make('project_id')
+                        ->label('Project')
+                        ->options(function (callable $get) {
+                            return Project::query()->where('client_id', $get('client_id'))
+                                ->pluck('title', 'id');
+                        })
+                        ->searchable()
+                        ->reactive(),
+                    Select::make('milestone_id')
+                        ->label('Milestone (Optional)')
+                        ->options(function (callable $get) {
+                            return Milestone::query()->where('project_id', $get('project_id'))
+                                ->where('is_paid', false)
+                                ->pluck('title', 'id');
+                        })
+                        ->searchable()
+                        ->hidden(fn (callable $get) => !$get('project_id')),
 
-                TextInput::make('amount')
-                    ->numeric()
-                    ->required()
-                    ->prefix('$'),
+                    TextInput::make('amount')
+                        ->numeric()
+                        ->required()
+                        ->prefix('$'),
 
-                Select::make('method')
-                    ->options([
-                        'bank' => 'Bank Transfer',
-                        'paypal' => 'PayPal',
-                        'card' => 'Credit Card',
-                        'cash' => 'Cash',
-                        'crypto' => 'Cryptocurrency'
-                    ])
-                    ->required(),
+                    Select::make('method')
+                        ->options([
+                            'bank' => 'Bank Transfer',
+                            'paypal' => 'PayPal',
+                            'card' => 'Credit Card',
+                            'cash' => 'Cash',
+                            'crypto' => 'Cryptocurrency'
+                        ])
+                        ->required(),
 
-                DatePicker::make('payment_date')
-                    ->default(now())
-                    ->required(),
+                    DatePicker::make('payment_date')
+                        ->default(now())
+                        ->required(),
 
-                TextInput::make('reference')
-                    ->maxLength(255)
+                    TextInput::make('reference')
+                        ->maxLength(255),
+                    TextArea::make('preload')->columnSpan('full')
+                ])->columns(2)
             ]);
     }
 
@@ -104,6 +108,7 @@ class PaymentResource extends Resource
                         'bank' => 'Bank Transfer',
                         'paypal' => 'PayPal',
                         'card' => 'Credit Card',
+                        'mfs' => 'MFS',
                         'cash' => 'Cash',
                         'crypto' => 'Cryptocurrency'
                     })->badge(),
