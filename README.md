@@ -11,19 +11,55 @@
 
 A lightweight, open-source CRM designed specifically for solo freelancers to manage their client relationships, projects, and business workflows. This tool helps independent professionals streamline their operations without enterprise-level complexity.
 
-## Key Features (Planned/Partial Implementation)
+## 🚧 Installation (Development Version)
 
-- 📝 Client management dashboard
-- 🗓 Project timeline and deadline tracking
-- 💰 Invoice generation and payment tracking
+To set up the development environment, follow these steps:
 
-
-## Installation (Development Version)
-
-```bash
+````base
 git clone https://github.com/yourusername/freelancer-crm.git
 cd freelancer-crm
 composer install
+cp .env.example .env
+php artisan key:generate
 php artisan migrate
-npm install  # or yarn install
-npm run dev  # or yarn dev
+npm install     # or: yarn install
+npm run dev     # or: yarn dev
+````
+
+
+
+## Key Features (Planned/Partial Implementation)
+
+- Client management dashboard
+- Project timeline and deadline tracking
+- Invoice generation and payment tracking
+- Milestone track
+
+
+
+
+
+## 🛠️ Coming Soon (Planned Features)
+
+- Invoicing system
+- File uploads per project  
+- Notification system  
+
+---
+
+## 📅 Changelog
+
+### v0.0.1 (Initial Alpha)
+
+- Dashboard state summary and chart  
+- Client & project management  
+- Product management  
+- Milestone tracking  
+
+---
+
+## 🤝 Contributing
+
+Want to help improve the system? Contributions are welcome.  
+Please fork the repository and submit a pull request (PR).
+
