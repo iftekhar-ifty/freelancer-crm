@@ -43,7 +43,6 @@ class ProjectResource extends Resource
                         ->schema([
                             Repeater::make('milestones')
                                 ->relationship()
-//                                ->visible(fn (Closure $get) => $get('payment_type') === 'milestone')
                                 ->schema([
                                     TextInput::make('title')
                                         ->required()
@@ -61,7 +60,7 @@ class ProjectResource extends Resource
                                         ->reactive()
                                 ])
                                 ->columns(2)
-                        ])
+                        ])->visible(fn (Forms\Get $get) => $get('payment_type') == 'milestone')
                 ])->columnSpan(2),
                 Forms\Components\Group::make()->schema([
                     Forms\Components\Section::make()->schema([
@@ -69,20 +68,6 @@ class ProjectResource extends Resource
                             ->relationship('client', 'name')
                             ->searchable()
                             ->required(),
-                        Forms\Components\Select::make('budget')
-                            ->label('Budget Type')
-                            ->dehydrated(false)
-                            ->options([
-                                'total' => 'total',
-                                'hourly' => 'hourly',
-                            ])->reactive(),
-                        Forms\Components\TextInput::make('total_price')
-                            ->visible(fn(Forms\Get $get) => $get('budget') == 'total')
-                            ->integer(),
-                        Forms\Components\TextInput::make('hourly_rate')
-                            ->visible(fn(Forms\Get $get) => $get('budget') == 'hourly')
-                            ->integer(),
-                        Forms\Components\DatePicker::make('deadline')->required(),
                         Forms\Components\Select::make('status')
                             ->options([
                                 'planned' => 'planned',
@@ -91,12 +76,19 @@ class ProjectResource extends Resource
                                 'archived' => 'archived',
                             ]),
                         Forms\Components\Select::make('payment_type')
+                            ->reactive()
                             ->options([
                                 'fixed' => 'fixed',
                                 'milestone' => 'milestone',
                                 'hourly' => 'hourly',
                                 'recurring' => 'recurring',
                             ]),
+                        Forms\Components\TextInput::make('total_price')
+                            ->visible(fn(Forms\Get $get) => $get('payment_type') == 'fixed' || $get('payment_type') == 'milestone' || $get('payment_type') == 'recurring'),
+                        Forms\Components\TextInput::make('hourly_rate')
+                            ->visible(fn(Forms\Get $get) => $get('payment_type') == 'hourly'),
+                        Forms\Components\DatePicker::make('deadline')->required(),
+
                     ])
                 ])->columnSpan(1)
 
@@ -115,7 +107,7 @@ class ProjectResource extends Resource
                 Tables\Columns\TextColumn::make('deadline')->badge()->searchable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('client_id')->label('Client')->relationship('client', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
