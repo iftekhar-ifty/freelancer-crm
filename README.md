@@ -16,7 +16,7 @@ A lightweight, open-source CRM designed specifically for solo freelancers to man
 To set up the development environment, follow these steps:
 
 ````base
-git clone https://github.com/yourusername/freelancer-crm.git
+git clone https://github.com/iftekhar-ifty/freelancer-crm
 cd freelancer-crm
 composer install
 cp .env.example .env
@@ -24,6 +24,9 @@ php artisan key:generate
 php artisan migrate
 npm install     # or: yarn install
 npm run dev     # or: yarn dev
+
+for admin go freelancer-crm.test/admin/login
+
 ````
 
 
