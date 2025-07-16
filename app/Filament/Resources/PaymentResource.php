@@ -27,7 +27,7 @@ class PaymentResource extends Resource
 {
     protected static ?string $model = Payment::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
     public static function form(Form $form): Form
     {
@@ -49,6 +49,17 @@ class PaymentResource extends Resource
                         ->searchable()
                         ->reactive(),
                     Select::make('milestone_id')
+                        ->visible(function (Forms\Get $get){
+                            $projectId = $get('project_id');
+                            if (!$projectId) {
+                                return false;
+                            }
+                            return Project::query()->where('id', $projectId)
+                                ->whereHas('milestones', function (Builder $query) use ($projectId) {
+                                    $query->where('is_paid', false);
+                                })
+                                ->exists();
+                        })
                         ->label('Milestone (Optional)')
                         ->options(function (callable $get) {
                             return Milestone::query()->where('project_id', $get('project_id'))
@@ -56,12 +67,38 @@ class PaymentResource extends Resource
                                 ->pluck('title', 'id');
                         })
                         ->searchable()
-                        ->hidden(fn (callable $get) => !$get('project_id')),
+                        ->hidden(fn (callable $get) => !$get('project_id'))
+                        ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                            $milestoneId = $get('milestone_id');
+                            $projectId = $get('project_id');
+                            $milestone = Milestone::query()->find($milestoneId);
+                            $set('amount', $milestone->amount);
+                        })
+                        ->live(),
 
                     TextInput::make('amount')
                         ->numeric()
                         ->required()
                         ->prefix('$'),
+
+//                TextInput::make('applied_amount')
+//                    ->reactive()
+//                    ->disabled()
+//                    ->prefix('$')
+//                    ->label('Applied Amount'),
+//
+//                TextInput::make('excess_amount')
+//                    ->disabled()
+//                    ->prefix('$')
+//                    ->label('Excess Amount'),
+//
+//                Select::make('status')
+//                    ->options([
+//                        'partial' => 'Partial Payment',
+//                        'full' => 'Full Payment',
+//                        'overpayment' => 'Contains Overpayment'
+//                    ])
+//                    ->disabled(),
 
                     Select::make('method')
                         ->options([
@@ -79,7 +116,9 @@ class PaymentResource extends Resource
 
                     TextInput::make('reference')
                         ->maxLength(255),
-                    TextArea::make('preload')->columnSpan('full')
+                    TextArea::make('preload')
+                        ->json()
+                        ->columnSpan('full')
                 ])->columns(2)
             ]);
     }
